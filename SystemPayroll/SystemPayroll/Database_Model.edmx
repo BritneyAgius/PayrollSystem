@@ -1,0 +1,211 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="PayrollSystemModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="Designation">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" Nullable="false" />
+          <Property Name="Title" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="Yearly_Income" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="Hours_Per_Week" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+        </EntityType>
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'PayrollSystem.dbo.Employee' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="Employee">
+          <Key>
+            <PropertyRef Name="ID" />
+            <PropertyRef Name="Name" />
+            <PropertyRef Name="Surname" />
+            <PropertyRef Name="NII_Number" />
+            <PropertyRef Name="Address" />
+            <PropertyRef Name="Email" />
+            <PropertyRef Name="Designation" />
+            <PropertyRef Name="Bonus" />
+          </Key>
+          <Property Name="ID" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="Name" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="Surname" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="NII_Number" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="Address" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="Email" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="Designation" Type="int" Nullable="false" />
+          <Property Name="Bonus" Type="float" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Payslip">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" Nullable="false" />
+          <Property Name="Date_From" Type="date" Nullable="false" />
+          <Property Name="Date_To" Type="date" Nullable="false" />
+          <Property Name="Hours_Worked" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="Employee" Type="nvarchar(max)" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Tax_Rate">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" Nullable="false" />
+          <Property Name="Income_From" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="Income_To" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="Rate" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+        </EntityType>
+        <EntityContainer Name="PayrollSystemModelStoreContainer">
+          <EntitySet Name="Designation" EntityType="Self.Designation" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Payslip" EntityType="Self.Payslip" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Tax_Rate" EntityType="Self.Tax_Rate" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Employee" EntityType="Self.Employee" store:Type="Tables" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [Employee].[ID] AS [ID], 
+    [Employee].[Name] AS [Name], 
+    [Employee].[Surname] AS [Surname], 
+    [Employee].[NII_Number] AS [NII_Number], 
+    [Employee].[Address] AS [Address], 
+    [Employee].[Email] AS [Email], 
+    [Employee].[Designation] AS [Designation], 
+    [Employee].[Bonus] AS [Bonus]
+    FROM [dbo].[Employee] AS [Employee]</DefiningQuery>
+          </EntitySet>
+        </EntityContainer>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="PayrollSystemModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="Designation">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" />
+          <Property Name="Title" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Yearly_Income" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="Hours_Per_Week" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Tax_Rate">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" />
+          <Property Name="Income_From" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="Income_To" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="Rate" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Employee">
+          <Key>
+            <PropertyRef Name="ID" />
+            <PropertyRef Name="Name" />
+            <PropertyRef Name="Surname" />
+            <PropertyRef Name="NII_Number" />
+            <PropertyRef Name="Address" />
+            <PropertyRef Name="Email" />
+            <PropertyRef Name="Designation" />
+            <PropertyRef Name="Bonus" />
+          </Key>
+          <Property Name="ID" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Surname" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="NII_Number" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Address" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Email" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Designation" Type="Int32" Nullable="false" />
+          <Property Name="Bonus" Type="Double" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Payslip">
+          <Key>
+            <PropertyRef Name="ID" />
+            <PropertyRef Name="Date_From" />
+            <PropertyRef Name="Date_To" />
+            <PropertyRef Name="Hours_Worked" />
+            <PropertyRef Name="Employee" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" />
+          <Property Name="Date_From" Type="DateTime" Nullable="false" Precision="0" />
+          <Property Name="Date_To" Type="DateTime" Nullable="false" Precision="0" />
+          <Property Name="Hours_Worked" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="Employee" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+        </EntityType>
+        <EntityContainer Name="PayrollSystemEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Designation" EntityType="Self.Designation" />
+          <EntitySet Name="Tax_Rate" EntityType="Self.Tax_Rate" />
+          <EntitySet Name="Employee" EntityType="Self.Employee" />
+          <EntitySet Name="Payslip" EntityType="Self.Payslip" />
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="PayrollSystemModelStoreContainer" CdmEntityContainer="PayrollSystemEntities">
+          <EntitySetMapping Name="Designation">
+            <EntityTypeMapping TypeName="PayrollSystemModel.Designation">
+              <MappingFragment StoreEntitySet="Designation">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Title" ColumnName="Title" />
+                <ScalarProperty Name="Yearly_Income" ColumnName="Yearly_Income" />
+                <ScalarProperty Name="Hours_Per_Week" ColumnName="Hours_Per_Week" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Tax_Rate">
+            <EntityTypeMapping TypeName="PayrollSystemModel.Tax_Rate">
+              <MappingFragment StoreEntitySet="Tax_Rate">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Income_From" ColumnName="Income_From" />
+                <ScalarProperty Name="Income_To" ColumnName="Income_To" />
+                <ScalarProperty Name="Rate" ColumnName="Rate" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Employee">
+            <EntityTypeMapping TypeName="PayrollSystemModel.Employee">
+              <MappingFragment StoreEntitySet="Employee">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Surname" ColumnName="Surname" />
+                <ScalarProperty Name="NII_Number" ColumnName="NII_Number" />
+                <ScalarProperty Name="Address" ColumnName="Address" />
+                <ScalarProperty Name="Email" ColumnName="Email" />
+                <ScalarProperty Name="Designation" ColumnName="Designation" />
+                <ScalarProperty Name="Bonus" ColumnName="Bonus" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Payslip">
+            <EntityTypeMapping TypeName="PayrollSystemModel.Payslip">
+              <MappingFragment StoreEntitySet="Payslip">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Date_From" ColumnName="Date_From" />
+                <ScalarProperty Name="Date_To" ColumnName="Date_To" />
+                <ScalarProperty Name="Hours_Worked" ColumnName="Hours_Worked" />
+                <ScalarProperty Name="Employee" ColumnName="Employee" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="false" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>
