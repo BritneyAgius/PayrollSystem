@@ -14,9 +14,18 @@ namespace SystemPayroll
     
     public partial class Designation
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public Designation()
+        {
+            this.Employee = new HashSet<Employee>();
+        }
+    
         public int ID { get; set; }
         public string Title { get; set; }
         public decimal Yearly_Income { get; set; }
         public decimal Hours_Per_Week { get; set; }
+    
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Employee> Employee { get; set; }
     }
 }

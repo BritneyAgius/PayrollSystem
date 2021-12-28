@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-    <Schema Namespace="PayrollSystemModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+      <Schema Namespace="PayrollSystemModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="Designation">
           <Key>
             <PropertyRef Name="ID" />
@@ -14,20 +14,11 @@
           <Property Name="Yearly_Income" Type="decimal" Precision="18" Scale="2" Nullable="false" />
           <Property Name="Hours_Per_Week" Type="decimal" Precision="18" Scale="2" Nullable="false" />
         </EntityType>
-        <!--Errors Found During Generation:
-warning 6002: The table/view 'PayrollSystem.dbo.Employee' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
         <EntityType Name="Employee">
           <Key>
             <PropertyRef Name="ID" />
-            <PropertyRef Name="Name" />
-            <PropertyRef Name="Surname" />
-            <PropertyRef Name="NII_Number" />
-            <PropertyRef Name="Address" />
-            <PropertyRef Name="Email" />
-            <PropertyRef Name="Designation" />
-            <PropertyRef Name="Bonus" />
           </Key>
-          <Property Name="ID" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="ID" Type="nchar" MaxLength="9" Nullable="false" />
           <Property Name="Name" Type="nvarchar(max)" Nullable="false" />
           <Property Name="Surname" Type="nvarchar(max)" Nullable="false" />
           <Property Name="NII_Number" Type="nvarchar(max)" Nullable="false" />
@@ -44,7 +35,7 @@ warning 6002: The table/view 'PayrollSystem.dbo.Employee' does not have a primar
           <Property Name="Date_From" Type="date" Nullable="false" />
           <Property Name="Date_To" Type="date" Nullable="false" />
           <Property Name="Hours_Worked" Type="decimal" Precision="18" Scale="2" Nullable="false" />
-          <Property Name="Employee" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="Employee" Type="nchar" MaxLength="9" Nullable="false" />
         </EntityType>
         <EntityType Name="Tax_Rate">
           <Key>
@@ -55,24 +46,46 @@ warning 6002: The table/view 'PayrollSystem.dbo.Employee' does not have a primar
           <Property Name="Income_To" Type="decimal" Precision="18" Scale="2" Nullable="false" />
           <Property Name="Rate" Type="decimal" Precision="18" Scale="2" Nullable="false" />
         </EntityType>
+        <Association Name="FK_Designation_Employee">
+          <End Role="Designation" Type="Self.Designation" Multiplicity="1" />
+          <End Role="Employee" Type="Self.Employee" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Designation">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Employee">
+              <PropertyRef Name="Designation" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Employee_Payslip">
+          <End Role="Employee" Type="Self.Employee" Multiplicity="1" />
+          <End Role="Payslip" Type="Self.Payslip" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Employee">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Payslip">
+              <PropertyRef Name="Employee" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <EntityContainer Name="PayrollSystemModelStoreContainer">
           <EntitySet Name="Designation" EntityType="Self.Designation" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Employee" EntityType="Self.Employee" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Payslip" EntityType="Self.Payslip" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Tax_Rate" EntityType="Self.Tax_Rate" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="Employee" EntityType="Self.Employee" store:Type="Tables" store:Schema="dbo">
-            <DefiningQuery>SELECT 
-    [Employee].[ID] AS [ID], 
-    [Employee].[Name] AS [Name], 
-    [Employee].[Surname] AS [Surname], 
-    [Employee].[NII_Number] AS [NII_Number], 
-    [Employee].[Address] AS [Address], 
-    [Employee].[Email] AS [Email], 
-    [Employee].[Designation] AS [Designation], 
-    [Employee].[Bonus] AS [Bonus]
-    FROM [dbo].[Employee] AS [Employee]</DefiningQuery>
-          </EntitySet>
+          <AssociationSet Name="FK_Designation_Employee" Association="Self.FK_Designation_Employee">
+            <End Role="Designation" EntitySet="Designation" />
+            <End Role="Employee" EntitySet="Employee" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Employee_Payslip" Association="Self.FK_Employee_Payslip">
+            <End Role="Employee" EntitySet="Employee" />
+            <End Role="Payslip" EntitySet="Payslip" />
+          </AssociationSet>
         </EntityContainer>
-      </Schema></edmx:StorageModels>
+      </Schema>
+    </edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="PayrollSystemModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
@@ -84,6 +97,33 @@ warning 6002: The table/view 'PayrollSystem.dbo.Employee' does not have a primar
           <Property Name="Title" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="Yearly_Income" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
           <Property Name="Hours_Per_Week" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+          <NavigationProperty Name="Employee" Relationship="Self.FK_Designation_Employee" FromRole="Designation" ToRole="Employee" />
+        </EntityType>
+        <EntityType Name="Employee">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="String" MaxLength="9" FixedLength="true" Unicode="true" Nullable="false" />
+          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Surname" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="NII_Number" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Address" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Email" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Designation" Type="Int32" Nullable="false" />
+          <Property Name="Bonus" Type="Double" Nullable="false" />
+          <NavigationProperty Name="Designation1" Relationship="Self.FK_Designation_Employee" FromRole="Employee" ToRole="Designation" />
+          <NavigationProperty Name="Payslip" Relationship="Self.FK_Employee_Payslip" FromRole="Employee" ToRole="Payslip" />
+        </EntityType>
+        <EntityType Name="Payslip">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" />
+          <Property Name="Date_From" Type="DateTime" Nullable="false" Precision="0" />
+          <Property Name="Date_To" Type="DateTime" Nullable="false" Precision="0" />
+          <Property Name="Hours_Worked" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="Employee" Type="String" MaxLength="9" FixedLength="true" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="Employee1" Relationship="Self.FK_Employee_Payslip" FromRole="Payslip" ToRole="Employee" />
         </EntityType>
         <EntityType Name="Tax_Rate">
           <Key>
@@ -94,52 +134,50 @@ warning 6002: The table/view 'PayrollSystem.dbo.Employee' does not have a primar
           <Property Name="Income_To" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
           <Property Name="Rate" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
         </EntityType>
-        <EntityType Name="Employee">
-          <Key>
-            <PropertyRef Name="ID" />
-            <PropertyRef Name="Name" />
-            <PropertyRef Name="Surname" />
-            <PropertyRef Name="NII_Number" />
-            <PropertyRef Name="Address" />
-            <PropertyRef Name="Email" />
-            <PropertyRef Name="Designation" />
-            <PropertyRef Name="Bonus" />
-          </Key>
-          <Property Name="ID" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="Surname" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="NII_Number" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="Address" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="Email" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="Designation" Type="Int32" Nullable="false" />
-          <Property Name="Bonus" Type="Double" Nullable="false" />
-        </EntityType>
-        <EntityType Name="Payslip">
-          <Key>
-            <PropertyRef Name="ID" />
-            <PropertyRef Name="Date_From" />
-            <PropertyRef Name="Date_To" />
-            <PropertyRef Name="Hours_Worked" />
-            <PropertyRef Name="Employee" />
-          </Key>
-          <Property Name="ID" Type="Int32" Nullable="false" />
-          <Property Name="Date_From" Type="DateTime" Nullable="false" Precision="0" />
-          <Property Name="Date_To" Type="DateTime" Nullable="false" Precision="0" />
-          <Property Name="Hours_Worked" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
-          <Property Name="Employee" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
-        </EntityType>
-        <EntityContainer Name="PayrollSystemEntities" annotation:LazyLoadingEnabled="true">
+        <Association Name="FK_Designation_Employee">
+          <End Role="Designation" Type="Self.Designation" Multiplicity="1" />
+          <End Role="Employee" Type="Self.Employee" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Designation">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Employee">
+              <PropertyRef Name="Designation" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Employee_Payslip">
+          <End Role="Employee" Type="Self.Employee" Multiplicity="1" />
+          <End Role="Payslip" Type="Self.Payslip" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Employee">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Payslip">
+              <PropertyRef Name="Employee" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="PayrollSystemEntities1" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="Designation" EntityType="Self.Designation" />
-          <EntitySet Name="Tax_Rate" EntityType="Self.Tax_Rate" />
           <EntitySet Name="Employee" EntityType="Self.Employee" />
           <EntitySet Name="Payslip" EntityType="Self.Payslip" />
+          <EntitySet Name="Tax_Rate" EntityType="Self.Tax_Rate" />
+          <AssociationSet Name="FK_Designation_Employee" Association="Self.FK_Designation_Employee">
+            <End Role="Designation" EntitySet="Designation" />
+            <End Role="Employee" EntitySet="Employee" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Employee_Payslip" Association="Self.FK_Employee_Payslip">
+            <End Role="Employee" EntitySet="Employee" />
+            <End Role="Payslip" EntitySet="Payslip" />
+          </AssociationSet>
         </EntityContainer>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
     <edmx:Mappings>
       <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
-        <EntityContainerMapping StorageEntityContainer="PayrollSystemModelStoreContainer" CdmEntityContainer="PayrollSystemEntities">
+        <EntityContainerMapping StorageEntityContainer="PayrollSystemModelStoreContainer" CdmEntityContainer="PayrollSystemEntities1">
           <EntitySetMapping Name="Designation">
             <EntityTypeMapping TypeName="PayrollSystemModel.Designation">
               <MappingFragment StoreEntitySet="Designation">
@@ -147,16 +185,6 @@ warning 6002: The table/view 'PayrollSystem.dbo.Employee' does not have a primar
                 <ScalarProperty Name="Title" ColumnName="Title" />
                 <ScalarProperty Name="Yearly_Income" ColumnName="Yearly_Income" />
                 <ScalarProperty Name="Hours_Per_Week" ColumnName="Hours_Per_Week" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="Tax_Rate">
-            <EntityTypeMapping TypeName="PayrollSystemModel.Tax_Rate">
-              <MappingFragment StoreEntitySet="Tax_Rate">
-                <ScalarProperty Name="ID" ColumnName="ID" />
-                <ScalarProperty Name="Income_From" ColumnName="Income_From" />
-                <ScalarProperty Name="Income_To" ColumnName="Income_To" />
-                <ScalarProperty Name="Rate" ColumnName="Rate" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -182,6 +210,16 @@ warning 6002: The table/view 'PayrollSystem.dbo.Employee' does not have a primar
                 <ScalarProperty Name="Date_To" ColumnName="Date_To" />
                 <ScalarProperty Name="Hours_Worked" ColumnName="Hours_Worked" />
                 <ScalarProperty Name="Employee" ColumnName="Employee" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Tax_Rate">
+            <EntityTypeMapping TypeName="PayrollSystemModel.Tax_Rate">
+              <MappingFragment StoreEntitySet="Tax_Rate">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Income_From" ColumnName="Income_From" />
+                <ScalarProperty Name="Income_To" ColumnName="Income_To" />
+                <ScalarProperty Name="Rate" ColumnName="Rate" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

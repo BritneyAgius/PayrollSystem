@@ -19,5 +19,7 @@ namespace SystemPayroll
         public System.DateTime Date_To { get; set; }
         public decimal Hours_Worked { get; set; }
         public string Employee { get; set; }
+    
+        public virtual Employee Employee1 { get; set; }
     }
 }

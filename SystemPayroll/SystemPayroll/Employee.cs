@@ -14,6 +14,12 @@ namespace SystemPayroll
     
     public partial class Employee
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public Employee()
+        {
+            this.Payslip = new HashSet<Payslip>();
+        }
+    
         public string ID { get; set; }
         public string Name { get; set; }
         public string Surname { get; set; }
@@ -22,5 +28,9 @@ namespace SystemPayroll
         public string Email { get; set; }
         public int Designation { get; set; }
         public double Bonus { get; set; }
+    
+        public virtual Designation Designation1 { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Payslip> Payslip { get; set; }
     }
 }

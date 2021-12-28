@@ -73,6 +73,7 @@
     <Compile Include="Employee.cs">
       <DependentUpon>Database_Model.tt</DependentUpon>
     </Compile>
+    <Compile Include="MenuHandler.cs" />
     <Compile Include="Payslip.cs">
       <DependentUpon>Database_Model.tt</DependentUpon>
     </Compile>
@@ -81,6 +82,7 @@
     <Compile Include="Tax_Rate.cs">
       <DependentUpon>Database_Model.tt</DependentUpon>
     </Compile>
+    <Compile Include="TypeEdit.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

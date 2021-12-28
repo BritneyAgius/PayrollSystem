@@ -6,10 +6,12 @@ using System.Threading.Tasks;
 
 namespace SystemPayroll
 {
-    internal class Program
+    class Program
     {
         static void Main(string[] args)
         {
+            MenuHandler menuHandler = new MenuHandler();
+            menuHandler.MenuDisplay();
         }
     }
 }

@@ -13,10 +13,10 @@ namespace SystemPayroll
     using System.Data.Entity;
     using System.Data.Entity.Infrastructure;
     
-    public partial class PayrollSystemEntities : DbContext
+    public partial class PayrollSystemEntities1 : DbContext
     {
-        public PayrollSystemEntities()
-            : base("name=PayrollSystemEntities")
+        public PayrollSystemEntities1()
+            : base("name=PayrollSystemEntities1")
         {
         }
     
@@ -26,8 +26,8 @@ namespace SystemPayroll
         }
     
         public virtual DbSet<Designation> Designation { get; set; }
-        public virtual DbSet<Tax_Rate> Tax_Rate { get; set; }
         public virtual DbSet<Employee> Employee { get; set; }
         public virtual DbSet<Payslip> Payslip { get; set; }
+        public virtual DbSet<Tax_Rate> Tax_Rate { get; set; }
     }
 }
