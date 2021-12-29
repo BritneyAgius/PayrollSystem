@@ -38,6 +38,10 @@ namespace SystemPayroll
 
     public partial class Tax_Rate
     {
+        public Tax_Rate()
+        {
+        }
+
         public Tax_Rate(int ID, decimal Income_From, decimal Income_To, decimal Rate)
         {
             this.ID= ID; 
@@ -49,6 +53,10 @@ namespace SystemPayroll
 
     public partial class Payslip
     {
+        public Payslip()
+        {
+        }
+
         public Payslip(int ID, DateTime Date_From, DateTime Date_To, decimal Hours_Worked, string Employee)
         {
             this.ID = ID;

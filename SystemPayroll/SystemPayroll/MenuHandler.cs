@@ -104,39 +104,294 @@ namespace SystemPayroll
             }
         }
 
-        private void AddEmployee()
+        private void AddEmployee() //Add new employe
         {
-            Console.WriteLine("Add Employee");
+            PayrollSystemEntities1 db = new PayrollSystemEntities1(); //Connect to SSMS database
+
+            Console.WriteLine("Add New Employee");
+
+            Console.WriteLine("\nID Card Number:"); 
+            string IDCard = Console.ReadLine();
+
+            Console.WriteLine("First Name:"); 
+            string  FirstName = Console.ReadLine();
+
+            Console.WriteLine("Last Name:");
+            string LastName = Console.ReadLine();
+
+            Console.WriteLine("NI Number:");
+            string  NINumber = Console.ReadLine();
+
+            Console.WriteLine("Address:");
+            string  Address = Console.ReadLine();
+
+            Console.WriteLine("Email:");
+            string Email = Console.ReadLine();  
+
+            Console.WriteLine("Designaton:");
+            Int32.TryParse(Console.ReadLine(), out int Designation);
+
+            Console.WriteLine("Bonus:");
+            Double.TryParse(Console.ReadLine(), out double Bonus);
+
+            Employee employee = new Employee(IDCard, FirstName, LastName, NINumber, Address, Email, Designation, Bonus);
+
+            db.Employee.Add(employee);
+            try 
+            {
+                db.SaveChanges();
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message + Environment.NewLine + ex.InnerException);
+            }
         }
 
         private void EditEmployee()
         {
-            Console.WriteLine("Edit Employee");
+            PayrollSystemEntities1 db = new PayrollSystemEntities1();
+
+            Console.WriteLine("Enter Employee ID: ");
+            string EmployeeID = Console.ReadLine();
+
+            var employee = (from e in db.Employee
+                            where e.ID == EmployeeID
+                            select e).FirstOrDefault();
+
+            if (employee == null)
+            {
+                Console.Clear();
+                Console.WriteLine("Incorrect Employee ID");
+                ReturnToMainMenu();
+            }
+
+            Console.Clear();
+            Console.WriteLine("First Name:");
+            string FirstName = Console.ReadLine();
+
+            Console.WriteLine("Last Name:");
+            string LastName = Console.ReadLine();
+
+            Console.WriteLine("NI Number:");
+            string NINumber = Console.ReadLine();
+
+            Console.WriteLine("Address:");
+            string Address = Console.ReadLine();
+
+            Console.WriteLine("Email:");
+            string Email = Console.ReadLine();
+
+            Console.WriteLine("Designaton:");
+            Int32.TryParse(Console.ReadLine(), out int Designation);
+
+            Console.WriteLine("Bonus:");
+            Double.TryParse(Console.ReadLine(), out double Bonus);           
+
+            if(employee != null)
+            {
+                employee.Name = FirstName;
+                employee.Surname = LastName;
+                employee.NII_Number = NINumber;
+                employee.Address = Address;
+                employee.Email = Email;
+                employee.Designation = Designation;
+                employee.Bonus = Bonus;
+            }            
+
+            try
+            {
+                db.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message + Environment.NewLine + ex.InnerException);
+            }
         }
 
         private void AddDesignation()
         {
+            PayrollSystemEntities1 db = new PayrollSystemEntities1(); //Connect to SSMS database
+
             Console.WriteLine("Add Designation");
+
+            Console.WriteLine("\nDesignation ID:");
+            Int32.TryParse(Console.ReadLine(), out int DesignationID);
+
+            Console.WriteLine("Title:");
+            String Title = Console.ReadLine();
+
+            Console.WriteLine("Yearly Income:");
+            Decimal.TryParse(Console.ReadLine(), out decimal YearlyIncome);
+
+            Console.WriteLine("Hours Per Week:");
+            Decimal.TryParse(Console.ReadLine(), out decimal HoursPerWeek);
+
+            Designation designation = new Designation(DesignationID, Title, YearlyIncome, HoursPerWeek);
+
+            db.Designation.Add(designation);
+            try
+            {
+                db.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
         }
 
         private void EditDesignation()
         {
-            Console.WriteLine("Edit Designation");
+            PayrollSystemEntities1 db = new PayrollSystemEntities1();
+
+            Console.WriteLine("Enter Designation ID: ");
+            Int32.TryParse(Console.ReadLine(), out int DesignationID);
+
+            var designation = (from d in db.Designation
+                               where d.ID == DesignationID
+                               select d).FirstOrDefault();
+
+            if (designation == null)
+            {
+                Console.Clear();
+                Console.WriteLine("Incorrect Designation ID");
+                ReturnToMainMenu();
+            }
+
+            Console.Clear();
+            Console.WriteLine("Title:");
+            String Title = Console.ReadLine();
+
+            Console.WriteLine("Yearly Income:");
+            Decimal.TryParse(Console.ReadLine(), out decimal YearlyIncome);
+
+            Console.WriteLine("Hours Per Week:");
+            Decimal.TryParse(Console.ReadLine(), out decimal HoursPerWeek);
+
+            if (designation != null)
+            {
+                designation.Title = Title;
+                designation.Yearly_Income = YearlyIncome;
+                designation.Hours_Per_Week = HoursPerWeek;
+            }
+
+            try
+            {
+                db.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message + Environment.NewLine + ex.InnerException);
+            }
         }
 
         private void AddTaxRate()
         {
-            Console.WriteLine("Add Tax Rate");
+            PayrollSystemEntities1 db = new PayrollSystemEntities1(); //Connect to SSMS database
+
+            Console.WriteLine("Add New Tax Rate");
+
+            Console.WriteLine("\nTax Rate ID:");
+            Int32.TryParse(Console.ReadLine(), out int TaxRateID);
+
+            Console.WriteLine("Starting Income:");
+            Decimal.TryParse(Console.ReadLine(), out decimal StartingIncome);
+
+            Console.WriteLine("Ending Income:");
+            Decimal.TryParse(Console.ReadLine(), out decimal EndingIncome);
+
+            Console.WriteLine("Rate:");
+            Decimal.TryParse(Console.ReadLine(), out decimal Rate);
+
+            Tax_Rate tax_Rate = new Tax_Rate(TaxRateID, StartingIncome, EndingIncome, Rate);
+
+            db.Tax_Rate.Add(tax_Rate);
+            try
+            {
+                db.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message + Environment.NewLine + ex.InnerException);
+            }
         }
 
         private void EditTaxRate()
         {
-            Console.WriteLine("Edit Tax Rate");
+            PayrollSystemEntities1 db = new PayrollSystemEntities1();
+
+            Console.WriteLine("Enter Tax Rate ID: ");
+            Int32.TryParse(Console.ReadLine(), out int TaxRateID);
+
+            var taxRate = (from tr in db.Tax_Rate
+                           where tr.ID == TaxRateID
+                           select tr).FirstOrDefault();
+
+            if (taxRate == null)
+            {
+                Console.Clear();
+                Console.WriteLine("Incorrect Tax Rate ID");
+                ReturnToMainMenu();
+            }
+
+            Console.Clear();
+            Console.WriteLine("Starting Income:");
+            Decimal.TryParse(Console.ReadLine(), out decimal StartingIncome);
+
+            Console.WriteLine("Ending Income:");
+            Decimal.TryParse(Console.ReadLine(), out decimal EndingIncome);
+
+            Console.WriteLine("Rate:");
+            Decimal.TryParse(Console.ReadLine(), out decimal Rate);
+
+            if (taxRate != null)
+            {
+                taxRate.Income_To = StartingIncome;
+                taxRate.Income_From = EndingIncome;
+                taxRate.Rate = Rate;
+            }
+
+            try
+            {
+                db.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message + Environment.NewLine + ex.InnerException);
+            }
         }
 
         private void AddPayslip()
         {
-            Console.WriteLine("Add Payslip");
+            PayrollSystemEntities1 db = new PayrollSystemEntities1(); //Connect to SSMS database
+
+            Console.WriteLine("Add New Payslip");
+
+            Console.WriteLine("\nPayslip ID:");
+            Int32.TryParse(Console.ReadLine(), out int PayslipID);
+
+            Console.WriteLine("Starting Date (dd-mm-yyyy):");
+            DateTime.TryParse(Console.ReadLine(), out DateTime StartingDate);
+
+            Console.WriteLine("Ending Date (dd-mm-yyyy):");
+            DateTime.TryParse(Console.ReadLine(), out DateTime EndingDate);
+
+            Console.WriteLine("Hours Worked:");
+            Decimal.TryParse(Console.ReadLine(), out decimal HoursWorked);
+
+            Console.WriteLine("Employee:");
+            string Employee = Console.ReadLine();
+
+            Payslip payslip = new Payslip(PayslipID, StartingDate, EndingDate, HoursWorked, Employee);
+
+            db.Payslip.Add(payslip);
+            try
+            {
+                db.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message + Environment.NewLine + ex.InnerException);
+            }
         }
 
         private void EditPayslip()
@@ -161,7 +416,7 @@ namespace SystemPayroll
 
         private void ReturnToMainMenu()
         {
-            Console.WriteLine("\nEnter any key to return to the Main Menu"); // \n = Skips a line
+            Console.WriteLine("\nEnter any key to return to the Main Menu"); // \n = Skips a line before this line of code
             Console.ReadKey();
             MenuDisplay();
         }
