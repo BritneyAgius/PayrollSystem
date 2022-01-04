@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Globalization;
 
 namespace SystemPayroll
 {
@@ -396,7 +397,84 @@ namespace SystemPayroll
 
         private void EditPayslip()
         {
-            Console.WriteLine("Edit Payslip");
+            PayrollSystemEntities1 db = new PayrollSystemEntities1();
+
+            Console.WriteLine("Enter Employee ID Card: ");
+            string employeeId = Console.ReadLine();
+
+            var id = (from e in db.Employee
+                      where e.ID == employeeId
+                      select e).FirstOrDefault();
+
+            if (id == null)
+            {
+                Console.Clear();
+                Console.WriteLine("Incorrect Employee ID Card");
+                ReturnToMainMenu();
+            }
+
+            Console.WriteLine("Enter Payslip Month");
+            string userInputMonth = Console.ReadLine();
+            Int32.TryParse(userInputMonth, out int month);
+            var MonthNum = (from p in db.Payslip
+                            where p.Date_From.Month == month
+                            select p).FirstOrDefault();
+
+            if (MonthNum == null)
+            {
+                Console.Clear();
+                Console.WriteLine("Incorrect Month");
+                ReturnToMainMenu();
+            }
+
+            Console.WriteLine("Enter Payslip Year");
+            string userInputYear = Console.ReadLine();
+            Int32.TryParse(userInputYear, out int year);
+            var YearNum = (from p in db.Payslip
+                           where p.Date_From.Year == year
+                           select p).FirstOrDefault();
+
+            if (YearNum == null)
+            {
+                Console.Clear();
+                Console.WriteLine("Incorrect Year");
+                ReturnToMainMenu();
+            }
+
+            Console.Clear();
+            Console.WriteLine("Payslip Date From (dd-MM-yyyy):");
+            string FromInputDate = Console.ReadLine();
+            DateTime.TryParseExact(FromInputDate, "dd-MM-yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime FromDate);
+
+            Console.WriteLine("Payslip Date To (dd-MM-yyyy):");
+            string ToInputDate = Console.ReadLine();
+            DateTime.TryParseExact(ToInputDate, "dd-MM-yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime ToDate);
+
+            Console.WriteLine("Hours Worked:");
+            string userInputHours = Console.ReadLine();
+            Decimal.TryParse(userInputHours, out decimal Hours);
+
+            var Payslip = (from p in db.Payslip
+                           where p.Employee == employeeId
+                           where p.Date_From.Month == month
+                           where p.Date_From.Year == year
+                           select p).FirstOrDefault();
+
+            if (Payslip != null)
+            {
+                Payslip.Date_From = FromDate;
+                Payslip.Date_To = ToDate;
+                Payslip.Hours_Worked = Hours;
+            }
+
+            try
+            {
+                db.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message + Environment.NewLine + ex.InnerException);
+            }
         }
 
         private void GeneratePayslip()
