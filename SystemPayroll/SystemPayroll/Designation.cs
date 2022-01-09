@@ -24,6 +24,7 @@ namespace SystemPayroll
         public string Title { get; set; }
         public decimal Yearly_Income { get; set; }
         public decimal Hours_Per_Week { get; set; }
+        public Nullable<decimal> OvertimeAmount { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Employee> Employee { get; set; }

@@ -227,7 +227,10 @@ namespace SystemPayroll
             Console.WriteLine("Hours Per Week:");
             Decimal.TryParse(Console.ReadLine(), out decimal HoursPerWeek);
 
-            Designation designation = new Designation(DesignationID, Title, YearlyIncome, HoursPerWeek);
+            Console.WriteLine("Overtime Amount:");
+            Decimal.TryParse(Console.ReadLine(), out decimal Overtime);
+
+            Designation designation = new Designation(DesignationID, Title, YearlyIncome, HoursPerWeek, Overtime);
 
             db.Designation.Add(designation);
             try
@@ -268,11 +271,15 @@ namespace SystemPayroll
             Console.WriteLine("Hours Per Week:");
             Decimal.TryParse(Console.ReadLine(), out decimal HoursPerWeek);
 
+            Console.WriteLine("Overtime Amount:");
+            Decimal.TryParse(Console.ReadLine(), out decimal Overtime);
+
             if (designation != null)
             {
                 designation.Title = Title;
                 designation.Yearly_Income = YearlyIncome;
                 designation.Hours_Per_Week = HoursPerWeek;
+                designation.OvertimeAmount = Overtime;
             }
 
             try
@@ -359,7 +366,7 @@ namespace SystemPayroll
             {
                 Console.WriteLine(ex.Message + Environment.NewLine + ex.InnerException);
             }
-        }
+        } 
 
         private void AddPayslip()
         {
@@ -379,10 +386,13 @@ namespace SystemPayroll
             Console.WriteLine("Hours Worked:");
             Decimal.TryParse(Console.ReadLine(), out decimal HoursWorked);
 
+            Console.WriteLine("Overtime Hours:");
+            Decimal.TryParse(Console.ReadLine(), out decimal Overtime);
+
             Console.WriteLine("Employee:");
             string Employee = Console.ReadLine();
 
-            Payslip payslip = new Payslip(PayslipID, StartingDate, EndingDate, HoursWorked, Employee);
+            Payslip payslip = new Payslip(PayslipID, StartingDate, EndingDate, HoursWorked, Employee, Overtime);
 
             db.Payslip.Add(payslip);
             try
@@ -414,8 +424,7 @@ namespace SystemPayroll
             }
 
             Console.WriteLine("Enter Payslip Month");
-            string userInputMonth = Console.ReadLine();
-            Int32.TryParse(userInputMonth, out int month);
+            Int32.TryParse(Console.ReadLine(), out int month);
             var MonthNum = (from p in db.Payslip
                             where p.Date_From.Month == month
                             select p).FirstOrDefault();
@@ -428,8 +437,7 @@ namespace SystemPayroll
             }
 
             Console.WriteLine("Enter Payslip Year");
-            string userInputYear = Console.ReadLine();
-            Int32.TryParse(userInputYear, out int year);
+            Int32.TryParse(Console.ReadLine(), out int year);
             var YearNum = (from p in db.Payslip
                            where p.Date_From.Year == year
                            select p).FirstOrDefault();
@@ -443,16 +451,16 @@ namespace SystemPayroll
 
             Console.Clear();
             Console.WriteLine("Payslip Date From (dd-MM-yyyy):");
-            string FromInputDate = Console.ReadLine();
-            DateTime.TryParseExact(FromInputDate, "dd-MM-yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime FromDate);
+            DateTime.TryParseExact(Console.ReadLine(), "dd-MM-yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime FromDate);
 
             Console.WriteLine("Payslip Date To (dd-MM-yyyy):");
-            string ToInputDate = Console.ReadLine();
-            DateTime.TryParseExact(ToInputDate, "dd-MM-yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime ToDate);
+            DateTime.TryParseExact(Console.ReadLine(), "dd-MM-yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime ToDate);
 
             Console.WriteLine("Hours Worked:");
-            string userInputHours = Console.ReadLine();
-            Decimal.TryParse(userInputHours, out decimal Hours);
+            Decimal.TryParse(Console.ReadLine(), out decimal Hours);
+
+            Console.WriteLine("Overtime Hours:");
+            Decimal.TryParse(Console.ReadLine(), out decimal Overtime);
 
             var Payslip = (from p in db.Payslip
                            where p.Employee == employeeId
@@ -465,6 +473,7 @@ namespace SystemPayroll
                 Payslip.Date_From = FromDate;
                 Payslip.Date_To = ToDate;
                 Payslip.Hours_Worked = Hours;
+                Payslip.Overtime = Overtime;
             }
 
             try
@@ -479,12 +488,223 @@ namespace SystemPayroll
 
         private void GeneratePayslip()
         {
-            Console.WriteLine("Generate Payslip");
+            PayrollSystemEntities1 db = new PayrollSystemEntities1();
+            int counter = 0;
+            int counter2 = 0;
+
+            Console.WriteLine("Enter Employee ID Card: ");
+            string employeeId = Console.ReadLine();
+
+            var id = (from e in db.Employee
+                      where e.ID == employeeId
+                      select e).FirstOrDefault();
+
+            if (id == null)
+            {
+                Console.Clear();
+                Console.WriteLine("Incorrect Employee ID Card");
+                ReturnToMainMenu();
+            }
+
+            Console.WriteLine("Enter Payslip Month");
+            string userInputMonth = Console.ReadLine();
+            Int32.TryParse(userInputMonth, out int month);
+            var MonthNum = (from p in db.Payslip
+                            where p.Employee == employeeId
+                            where p.Date_From.Month == month
+                            select p).FirstOrDefault();
+
+            if (MonthNum == null)
+            {
+                counter++;
+            }
+
+            Console.WriteLine("Enter Payslip Year");
+            string userInputYear = Console.ReadLine();
+            Int32.TryParse(userInputYear, out int year);
+            var YearNum = (from p in db.Payslip
+                           where p.Employee == employeeId
+                           where p.Date_From.Month == month
+                           where p.Date_From.Year == year
+                           select p).FirstOrDefault();
+
+            if (YearNum == null)
+            {
+                counter++;
+            }
+
+            if(counter != 0)
+            {
+                var checks = (from p in db.Payslip
+                              where p.Date_From.Month == month
+                              where p.Date_From.Year == year
+                              where p.Employee == employeeId
+                              select p).FirstOrDefault();
+                
+                if(checks != null)
+                {
+                    Console.WriteLine("Payslip already exists");
+                    counter2++;
+                }
+
+                if (counter2 != 0)
+                {
+                    Console.WriteLine("Invalid Inputs");
+                    counter = 0;                    
+                }
+                else
+                {
+                    try
+                    {
+                        DateTime DateFrom = new DateTime(year, month, 1);
+                        DateTime DateTo = new DateTime(year, month, DateTime.DaysInMonth(year, month));
+
+                        var PayslipID = from p in db.Payslip
+                                        select p;
+                        var Hours = (from e in db.Employee
+                                     where e.ID == employeeId
+                                     join Designation d in db.Designation
+                                     on e.Designation equals d.ID
+                                     select new { d.Hours_Per_Week }).FirstOrDefault();
+
+                        Payslip NewPayslip = new Payslip(PayslipID.Count() + 1, DateFrom, DateTo, Hours.Hours_Per_Week, employeeId, 0);
+                        db.Payslip.Add(NewPayslip);
+                        db.SaveChanges();
+                    }
+                    catch (Exception)
+                    {
+                        Console.WriteLine("Could not add payslip");
+                        ReturnToMainMenu();
+                    }
+                }
+            }
+
+            counter2 = 0;
+            int payslip;
+
+            if(counter != 0)
+            {
+                var payslips = from p in db.Payslip
+                               select p.ID;
+                payslip = payslips.Count();
+            }
+            else
+            {
+                payslip = YearNum.ID;
+            }
+
+            var Details = (from p in db.Payslip
+                            where p.ID == payslip
+                            join Employee e in db.Employee
+                            on p.Employee equals e.ID
+                            join Designation d in db.Designation
+                            on e.Designation equals d.ID
+                            select new {e.ID, e.Name, e.Surname, e.NII_Number, d.Title, d.Yearly_Income, d.OvertimeAmount, p.Date_From, p.Date_To, 
+                                p.Hours_Worked, p.Overtime}).FirstOrDefault();
+
+            var Rate = (from t in db.Tax_Rate
+                        where Details.Yearly_Income >= t.Income_From && Details.Yearly_Income <= t.Income_To
+                        select t.Rate).FirstOrDefault();
+
+            decimal Monthly = Math.Round(Details.Yearly_Income / (Details.Hours_Worked * 52) * (Details.Hours_Worked * 52) / 12, 2); //formula from Internet
+            decimal Overtime;
+            if(Details.OvertimeAmount.HasValue)
+            {
+                Overtime = (decimal)(Details.OvertimeAmount * Details.Overtime);
+            }
+            else
+            {
+                Overtime = 0;
+            }
+
+            Console.Clear();
+            Console.WriteLine("Employee ID: " + Details.ID + "\nName & Surname: " + Details.Name + " " + Details.Surname);
+            Console.WriteLine("NI: " + Details.NII_Number + " Designation: " + Details.Title);
+            Console.WriteLine("Pay Period: " + Details.Date_From.ToString("dd MMMM yyyy") + " - " + 
+                              Details.Date_To.ToString("dd MMMM yyyy"));
+            Console.WriteLine("Description + Hours + Amount (Eur)");
+            Console.WriteLine("Basic: " + Details.Hours_Worked * 4 + " hours " + Monthly + " (Eur)"); //4 weeks in a month
+            Console.WriteLine("Overtime: " + Details.Overtime + " hours " + Overtime + " (Eur)");
+            Console.WriteLine("Gross Pay: " + (Monthly + Overtime));
+            Console.WriteLine("Tax Rate: " + Rate + "%");
+            Console.WriteLine("Tax: " + (Monthly + Overtime) * (Rate / 100));
+            Console.WriteLine("Net Pay: " + (Monthly + Overtime - ((Monthly + Overtime) * Rate /100)));
+
+            counter = 0;
         }
 
         private void EmployeeSalaries()
         {
-            Console.WriteLine("Employee Salaries");
+            PayrollSystemEntities1 db = new PayrollSystemEntities1();
+            int counter = 0;
+
+            Console.WriteLine("Enter Month");
+            string userInputMonth = Console.ReadLine();
+            Int32.TryParse(userInputMonth, out int month);
+            var MonthNum = (from e in db.Employee
+                            join Designation d in db.Designation
+                            on e.Designation equals d.ID
+                            orderby d.Yearly_Income descending
+                            select e).ToList();
+
+            if (MonthNum == null)
+            {
+                counter++;
+            }
+
+            if(counter != 0)
+            {
+                Console.Clear();
+                Console.WriteLine("Invalid Month");
+                counter = 0;
+                ReturnToMainMenu();
+            }
+            else
+            {
+                counter = 0;
+            }
+
+            if(MonthNum.Count() != 0)
+            {
+                decimal monthly;
+                string name;
+
+                foreach (var e in MonthNum)
+                {
+                    var Emp = (from p in db.Payslip
+                               where p.Date_From.Month == month
+                               where p.Employee == e.ID
+                               join Employee emp in db.Employee
+                               on p.Employee equals emp.ID
+                               join Designation d in db.Designation
+                               on emp.Designation equals d.ID
+                               select new { p.Hours_Worked, emp.ID, emp.Name, emp.Surname, d.Yearly_Income }).FirstOrDefault();
+
+                    if(Emp != null)
+                    {
+                        name = Emp.Name + " " + Emp.Surname;
+                        monthly = Math.Round((Emp.Yearly_Income / (Emp.Hours_Worked * 52) * (Emp.Hours_Worked * 52) / 12), 2);
+                    }
+                    else
+                    {
+                        var Emp2 = (from emp in db.Employee
+                                    where emp.ID == e.ID
+                                    join Designation d in db.Designation
+                                    on emp.Designation equals d.ID
+                                    select new { emp.ID, emp.Name, emp.Surname, d.Hours_Per_Week, d.Yearly_Income }).FirstOrDefault();
+
+                        name = Emp2.Name + " " + Emp2.Surname;
+                        monthly = Math.Round((Emp2.Yearly_Income / (Emp2.Hours_Per_Week * 52) * (Emp2.Hours_Per_Week * 52) / 12), 2);
+                    }
+
+                    Console.WriteLine("Employee Name - " + name + "\t\t" + "Gross Pay - " + monthly + "\t\t");
+                }
+            }
+            else
+            {
+                Console.WriteLine("No Employees");
+                ReturnToMainMenu();
+            }
         }
 
         private void TotalHoursWorkedForEachEmployee()

@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="PayrollSystemModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="PayrollSystemModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="Designation">
           <Key>
             <PropertyRef Name="ID" />
@@ -13,6 +13,7 @@
           <Property Name="Title" Type="nvarchar(max)" Nullable="false" />
           <Property Name="Yearly_Income" Type="decimal" Precision="18" Scale="2" Nullable="false" />
           <Property Name="Hours_Per_Week" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="OvertimeAmount" Type="decimal" Precision="18" Scale="2" />
         </EntityType>
         <EntityType Name="Employee">
           <Key>
@@ -36,6 +37,7 @@
           <Property Name="Date_To" Type="date" Nullable="false" />
           <Property Name="Hours_Worked" Type="decimal" Precision="18" Scale="2" Nullable="false" />
           <Property Name="Employee" Type="nchar" MaxLength="9" Nullable="false" />
+          <Property Name="Overtime" Type="decimal" Precision="18" Scale="2" />
         </EntityType>
         <EntityType Name="Tax_Rate">
           <Key>
@@ -84,8 +86,7 @@
             <End Role="Payslip" EntitySet="Payslip" />
           </AssociationSet>
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="PayrollSystemModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
@@ -98,6 +99,7 @@
           <Property Name="Yearly_Income" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
           <Property Name="Hours_Per_Week" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
           <NavigationProperty Name="Employee" Relationship="Self.FK_Designation_Employee" FromRole="Designation" ToRole="Employee" />
+          <Property Name="OvertimeAmount" Type="Decimal" Precision="18" Scale="2" />
         </EntityType>
         <EntityType Name="Employee">
           <Key>
@@ -124,6 +126,7 @@
           <Property Name="Hours_Worked" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
           <Property Name="Employee" Type="String" MaxLength="9" FixedLength="true" Unicode="true" Nullable="false" />
           <NavigationProperty Name="Employee1" Relationship="Self.FK_Employee_Payslip" FromRole="Payslip" ToRole="Employee" />
+          <Property Name="Overtime" Type="Decimal" Precision="18" Scale="2" />
         </EntityType>
         <EntityType Name="Tax_Rate">
           <Key>
@@ -181,6 +184,7 @@
           <EntitySetMapping Name="Designation">
             <EntityTypeMapping TypeName="PayrollSystemModel.Designation">
               <MappingFragment StoreEntitySet="Designation">
+                <ScalarProperty Name="OvertimeAmount" ColumnName="OvertimeAmount" />
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Title" ColumnName="Title" />
                 <ScalarProperty Name="Yearly_Income" ColumnName="Yearly_Income" />
@@ -205,6 +209,7 @@
           <EntitySetMapping Name="Payslip">
             <EntityTypeMapping TypeName="PayrollSystemModel.Payslip">
               <MappingFragment StoreEntitySet="Payslip">
+                <ScalarProperty Name="Overtime" ColumnName="Overtime" />
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Date_From" ColumnName="Date_From" />
                 <ScalarProperty Name="Date_To" ColumnName="Date_To" />
