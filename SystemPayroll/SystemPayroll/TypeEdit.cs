@@ -23,8 +23,28 @@ namespace SystemPayroll
             this.Designation = Designation;
             this.Bonus = Bonus;
         }
+
+        public virtual void GeneratePayslip(List<string> payslipInfo)
+        {
+            Console.Clear();
+            Console.WriteLine("Employee ID: " + payslipInfo[0] + "\nName & Surname: " + payslipInfo[1] + " " + payslipInfo[2]);
+            Console.WriteLine("NI: " + payslipInfo[3] + " Designation: " + payslipInfo[4]);
+            Console.WriteLine("Pay Period: " + payslipInfo[5] + " - " + payslipInfo[6]);
+            Console.WriteLine("Description + Hours + Amount (Eur)");
+            Console.WriteLine("Basic: " + payslipInfo[7] + " hours " + payslipInfo[8] + " (Eur)"); //4 weeks in a month
+            Console.WriteLine("Overtime: " + payslipInfo[9] + " hours " + payslipInfo[10] + " (Eur)");
+            Console.WriteLine("Gross Pay: " + payslipInfo[11]);
+            Console.WriteLine("Tax Rate: " + payslipInfo[12] + "%");
+            Console.WriteLine("Tax: " + payslipInfo[13]);
+            Console.WriteLine("Net Pay: " + payslipInfo[14]);
+        }
     }
 
+    public class Manager : Employee
+    {
+        
+    }
+      
     public partial class Designation
     {
         public Designation(int ID, string Title, decimal Yearly_Income, decimal Hours_Per_Week, decimal Overtime)

@@ -87,7 +87,7 @@ namespace SystemPayroll
                     ReturnToMainMenu();
                     break;
                 case 9:
-                    GeneratePayslip();
+                    PayslipDetails();
                     ReturnToMainMenu();
                     break;
                 case 10:
@@ -371,17 +371,19 @@ namespace SystemPayroll
         private void AddPayslip()
         {
             PayrollSystemEntities1 db = new PayrollSystemEntities1(); //Connect to SSMS database
+            Manager manager = new Manager();
+            Employee employee = new Employee();
 
             Console.WriteLine("Add New Payslip");
 
             Console.WriteLine("\nPayslip ID:");
             Int32.TryParse(Console.ReadLine(), out int PayslipID);
 
-            Console.WriteLine("Starting Date (dd-mm-yyyy):");
-            DateTime.TryParse(Console.ReadLine(), out DateTime StartingDate);
+            Console.WriteLine("Month (MM):");
+            Int32.TryParse(Console.ReadLine(), out int month);
 
-            Console.WriteLine("Ending Date (dd-mm-yyyy):");
-            DateTime.TryParse(Console.ReadLine(), out DateTime EndingDate);
+            Console.WriteLine("Year (yyyy):");
+            Int32.TryParse(Console.ReadLine(), out int year);
 
             Console.WriteLine("Hours Worked:");
             Decimal.TryParse(Console.ReadLine(), out decimal HoursWorked);
@@ -392,12 +394,86 @@ namespace SystemPayroll
             Console.WriteLine("Employee:");
             string Employee = Console.ReadLine();
 
-            Payslip payslip = new Payslip(PayslipID, StartingDate, EndingDate, HoursWorked, Employee, Overtime);
+            DateTime DateFrom = new DateTime(year, month, 1);
+            DateTime DateTo = new DateTime(year, month, DateTime.DaysInMonth(year, month));
+
+            Payslip payslip = new Payslip(PayslipID, DateFrom, DateTo, HoursWorked, Employee, Overtime);
 
             db.Payslip.Add(payslip);
             try
             {
                 db.SaveChanges();
+
+                var PayslipEmp = (from p in db.Payslip
+                                  where p.Employee == Employee
+                                  where p.Date_From.Month == month
+                                  where p.Date_From.Year == year
+                                  select p).FirstOrDefault();
+                int payslipId;
+                List<string> payslipInfo = new List<string>();
+
+                if (PayslipEmp != null)
+                {
+                    var payslips = from p in db.Payslip
+                                   select p.ID;
+                    payslipId = payslips.Count();
+                }
+                else
+                {
+                    payslipId = PayslipEmp.ID;
+                }
+
+                var Details = (from p in db.Payslip
+                               where p.ID == payslipId
+                               join Employee e in db.Employee
+                               on p.Employee equals e.ID
+                               join Designation d in db.Designation
+                               on e.Designation equals d.ID
+                               select new
+                               { e.ID, e.Name, e.Surname, e.NII_Number, e.Bonus, d.Title, d.Yearly_Income, d.OvertimeAmount, p.Date_From,
+                                 p.Date_To, p.Hours_Worked, p.Overtime }).FirstOrDefault();
+
+                var Rate = (from t in db.Tax_Rate
+                            where Details.Yearly_Income >= t.Income_From && Details.Yearly_Income <= t.Income_To
+                            select t.Rate).FirstOrDefault();
+
+                decimal Monthly = Math.Round(Details.Yearly_Income / (Details.Hours_Worked * 52) * (Details.Hours_Worked * 52) / 12, 2); //formula from Internet
+                decimal OvertimeAmount;
+                if (Details.OvertimeAmount.HasValue)
+                {
+                    OvertimeAmount = (decimal)(Details.OvertimeAmount * Details.Overtime);
+                }
+                else
+                {
+                    OvertimeAmount = 0;
+                }
+                decimal gross = Monthly + Overtime;
+                decimal tax = (Monthly + Overtime) * (Rate / 100);
+                decimal net = (Monthly + Overtime - (Monthly + Overtime) * (Rate / 100));
+
+                if (Details.Bonus != 0)
+                {
+                    decimal grossPay = gross + Convert.ToDecimal(Details.Bonus);
+                    decimal taxAmount = grossPay * (Rate / 100);
+                    decimal netAmount = (grossPay) - (grossPay * (Rate / 100));
+                    string[] info = { Details.ID, Details.Name, Details.Surname, Details.NII_Number, Details.Title,
+                                  Details.Date_From.ToString("dd MMMM yyyy"), Details.Date_To.ToString("dd MMMM yyyy"),
+                                  (Details.Hours_Worked * 4).ToString(), Monthly.ToString(), Details.Overtime.ToString(),
+                                  OvertimeAmount.ToString(), gross.ToString(), Rate.ToString(), tax.ToString(), net.ToString(),
+                                  Details.Bonus.ToString(), grossPay.ToString(), taxAmount.ToString(), netAmount.ToString()};
+                    payslipInfo.AddRange(info);
+                    manager.GeneratePayslip(payslipInfo);
+                }
+                else
+                {
+                    string[] info = { Details.ID, Details.Name, Details.Surname, Details.NII_Number, Details.Title,
+                                  Details.Date_From.ToString("dd MMMM yyyy"), Details.Date_To.ToString("dd MMMM yyyy"),
+                                  (Details.Hours_Worked * 4).ToString(), Monthly.ToString(), Details.Overtime.ToString(),
+                                  Overtime.ToString(), gross.ToString(), Rate.ToString(), tax.ToString(), net.ToString(),
+                                  Details.Bonus.ToString()};
+                    payslipInfo.AddRange(info);
+                    employee.GeneratePayslip(payslipInfo);
+                }
             }
             catch (Exception ex)
             {
@@ -408,6 +484,8 @@ namespace SystemPayroll
         private void EditPayslip()
         {
             PayrollSystemEntities1 db = new PayrollSystemEntities1();
+            Manager manager = new Manager();
+            Employee employee = new Employee();
 
             Console.WriteLine("Enter Employee ID Card: ");
             string employeeId = Console.ReadLine();
@@ -479,6 +557,77 @@ namespace SystemPayroll
             try
             {
                 db.SaveChanges();
+
+                var PayslipEmp = (from p in db.Payslip
+                                       where p.Employee == employeeId
+                                  where p.Date_From.Month == month
+                                       where p.Date_From.Year == year
+                                       select p).FirstOrDefault();
+                int payslip;
+                List<string> payslipInfo = new List<string>();
+
+                if (PayslipEmp != null)
+                {
+                    var payslips = from p in db.Payslip
+                                   select p.ID;
+                    payslip = payslips.Count();
+                }
+                else
+                {
+                    payslip = YearNum.ID;
+                }
+
+                var Details = (from p in db.Payslip
+                               where p.ID == payslip
+                               join Employee e in db.Employee
+                               on p.Employee equals e.ID
+                               join Designation d in db.Designation
+                               on e.Designation equals d.ID
+                               select new
+                               { e.ID,  e.Name, e.Surname, e.NII_Number, e.Bonus, d.Title, d.Yearly_Income, d.OvertimeAmount, p.Date_From,
+                                 p.Date_To, p.Hours_Worked, p.Overtime }).FirstOrDefault();
+
+                var Rate = (from t in db.Tax_Rate
+                            where Details.Yearly_Income >= t.Income_From && Details.Yearly_Income <= t.Income_To
+                            select t.Rate).FirstOrDefault();
+
+                decimal Monthly = Math.Round(Details.Yearly_Income / (Details.Hours_Worked * 52) * (Details.Hours_Worked * 52) / 12, 2); //formula from Internet
+                decimal OvertimeAmount;
+                if (Details.OvertimeAmount.HasValue)
+                {
+                    OvertimeAmount = (decimal)(Details.OvertimeAmount * Details.Overtime);
+                }
+                else
+                {
+                    OvertimeAmount = 0;
+                }
+                decimal gross = Monthly + Overtime;
+                decimal tax = (Monthly + Overtime) * (Rate / 100);
+                decimal net = (Monthly + Overtime - (Monthly + Overtime) * (Rate / 100));
+
+                if (Details.Bonus != 0)
+                {
+                    decimal grossPay = gross + Convert.ToDecimal(Details.Bonus);
+                    decimal taxAmount = grossPay * (Rate / 100);
+                    decimal netAmount = (grossPay) - (grossPay * (Rate / 100));
+                    string[] info = { Details.ID, Details.Name, Details.Surname, Details.NII_Number, Details.Title,
+                                  Details.Date_From.ToString("dd MMMM yyyy"), Details.Date_To.ToString("dd MMMM yyyy"),
+                                  (Details.Hours_Worked * 4).ToString(), Monthly.ToString(), Details.Overtime.ToString(),
+                                  OvertimeAmount.ToString(), gross.ToString(), Rate.ToString(), tax.ToString(), net.ToString(),
+                                  Details.Bonus.ToString(), grossPay.ToString(), taxAmount.ToString(), netAmount.ToString()};
+                    payslipInfo.AddRange(info);
+                    manager.GeneratePayslip(payslipInfo);
+                }
+                else
+                {
+                    string[] info = { Details.ID, Details.Name, Details.Surname, Details.NII_Number, Details.Title,
+                                  Details.Date_From.ToString("dd MMMM yyyy"), Details.Date_To.ToString("dd MMMM yyyy"),
+                                  (Details.Hours_Worked * 4).ToString(), Monthly.ToString(), Details.Overtime.ToString(),
+                                  Overtime.ToString(), gross.ToString(), Rate.ToString(), tax.ToString(), net.ToString(),
+                                  Details.Bonus.ToString()};
+                    payslipInfo.AddRange(info);
+                    employee.GeneratePayslip(payslipInfo);
+                }
             }
             catch (Exception ex)
             {
@@ -486,9 +635,11 @@ namespace SystemPayroll
             }
         }
 
-        private void GeneratePayslip()
+        private void PayslipDetails()
         {
             PayrollSystemEntities1 db = new PayrollSystemEntities1();
+            Manager manager = new Manager();
+            Employee employee = new Employee();
             int counter = 0;
             int counter2 = 0;
 
@@ -581,6 +732,7 @@ namespace SystemPayroll
 
             counter2 = 0;
             int payslip;
+            List<string> payslipInfo = new List<string>();
 
             if(counter != 0)
             {
@@ -599,8 +751,8 @@ namespace SystemPayroll
                             on p.Employee equals e.ID
                             join Designation d in db.Designation
                             on e.Designation equals d.ID
-                            select new {e.ID, e.Name, e.Surname, e.NII_Number, d.Title, d.Yearly_Income, d.OvertimeAmount, p.Date_From, p.Date_To, 
-                                p.Hours_Worked, p.Overtime}).FirstOrDefault();
+                            select new {e.ID, e.Name, e.Surname, e.NII_Number, e.Bonus, d.Title, d.Yearly_Income, d.OvertimeAmount, 
+                                p.Date_From, p.Date_To, p.Hours_Worked, p.Overtime}).FirstOrDefault();
 
             var Rate = (from t in db.Tax_Rate
                         where Details.Yearly_Income >= t.Income_From && Details.Yearly_Income <= t.Income_To
@@ -616,19 +768,33 @@ namespace SystemPayroll
             {
                 Overtime = 0;
             }
+            decimal gross = Monthly + Overtime;
+            decimal tax = (Monthly + Overtime) * (Rate / 100);
+            decimal net = (Monthly + Overtime - (Monthly + Overtime) * (Rate / 100));
 
-            Console.Clear();
-            Console.WriteLine("Employee ID: " + Details.ID + "\nName & Surname: " + Details.Name + " " + Details.Surname);
-            Console.WriteLine("NI: " + Details.NII_Number + " Designation: " + Details.Title);
-            Console.WriteLine("Pay Period: " + Details.Date_From.ToString("dd MMMM yyyy") + " - " + 
-                              Details.Date_To.ToString("dd MMMM yyyy"));
-            Console.WriteLine("Description + Hours + Amount (Eur)");
-            Console.WriteLine("Basic: " + Details.Hours_Worked * 4 + " hours " + Monthly + " (Eur)"); //4 weeks in a month
-            Console.WriteLine("Overtime: " + Details.Overtime + " hours " + Overtime + " (Eur)");
-            Console.WriteLine("Gross Pay: " + (Monthly + Overtime));
-            Console.WriteLine("Tax Rate: " + Rate + "%");
-            Console.WriteLine("Tax: " + (Monthly + Overtime) * (Rate / 100));
-            Console.WriteLine("Net Pay: " + (Monthly + Overtime - ((Monthly + Overtime) * Rate /100)));
+            if(Details.Bonus != 0)
+            {
+                decimal grossPay = gross + Convert.ToDecimal(Details.Bonus);
+                decimal taxAmount = grossPay * (Rate / 100);
+                decimal netAmount = (grossPay) - (grossPay * (Rate / 100));
+                string[] info = { Details.ID, Details.Name, Details.Surname, Details.NII_Number, Details.Title, 
+                                  Details.Date_From.ToString("dd MMMM yyyy"), Details.Date_To.ToString("dd MMMM yyyy"), 
+                                  (Details.Hours_Worked * 4).ToString(), Monthly.ToString(), Details.Overtime.ToString(),
+                                  Overtime.ToString(), gross.ToString(), Rate.ToString(), tax.ToString(), net.ToString(),
+                                  Details.Bonus.ToString(), grossPay.ToString(), taxAmount.ToString(), netAmount.ToString()};
+                payslipInfo.AddRange(info);
+                manager.GeneratePayslip(payslipInfo);
+            }
+            else
+            {
+                string[] info = { Details.ID, Details.Name, Details.Surname, Details.NII_Number, Details.Title,
+                                  Details.Date_From.ToString("dd MMMM yyyy"), Details.Date_To.ToString("dd MMMM yyyy"),
+                                  (Details.Hours_Worked * 4).ToString(), Monthly.ToString(), Details.Overtime.ToString(),
+                                  Overtime.ToString(), gross.ToString(), Rate.ToString(), tax.ToString(), net.ToString(),
+                                  Details.Bonus.ToString()};
+                payslipInfo.AddRange(info);
+                employee.GeneratePayslip(payslipInfo);
+            }
 
             counter = 0;
         }
