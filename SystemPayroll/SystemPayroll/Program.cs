@@ -11,7 +11,7 @@ namespace SystemPayroll
         static void Main(string[] args)
         {
             MenuHandler menuHandler = new MenuHandler();
-            menuHandler.MenuDisplay();
+            menuHandler.MenuDisplay(); //Displays menu
         }
     }
 }
